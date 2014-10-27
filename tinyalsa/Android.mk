@@ -60,7 +60,6 @@ LOCAL_CFLAGS += \
     -Wno-unused-parameter    # Needed to workaround STL bug
 
 LOCAL_EXPORT_C_INCLUDE_DIRS := $(LOCAL_PATH)
-LOCAL_MODULE_RELATIVE_PATH := parameter-framework-plugins/Audio
 LOCAL_MODULE_TAGS := optional
 LOCAL_MODULE := libtinyalsa-subsystem
 LOCAL_MODULE_OWNER := intel
