@@ -31,9 +31,12 @@
 #include "MappingContext.h"
 #include "AlsaMappingKeys.hpp"
 #include <string.h>
+#include <string>
 #include <assert.h>
 #include <sstream>
 #include <limits>
+
+using std::string;
 
 #define base AlsaSubsystemObject
 
@@ -142,7 +145,7 @@ string AlsaCtlPortConfig::formatAlsaError(StreamDirection streamDirection,
                                           const string &functionName,
                                           const string &error)
 {
-    ostringstream stringStream;
+    std::ostringstream stringStream;
 
     stringStream << (streamDirection ? "Capture" : "Playback") << " " <<
         functionName << " error: " << error;
