@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011-2014, Intel Corporation
+ * Copyright (c) 2011-2015, Intel Corporation
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -35,7 +35,6 @@
 #include "ParameterBlockType.h"
 #include "MappingContext.h"
 #include "AlsaMappingKeys.hpp"
-#include "AutoLog.h"
 #include <string.h>
 #include <string>
 #include <ctype.h>
@@ -45,8 +44,9 @@
 
 AmixerControl::AmixerControl(const std::string &mappingValue,
                              CInstanceConfigurableElement *instanceConfigurableElement,
-                             const CMappingContext &context)
-    : base(mappingValue, instanceConfigurableElement,
+                             const CMappingContext &context,
+                             core::log::Logger& logger)
+    : base(mappingValue, instanceConfigurableElement, logger,
            AlsaAmend1,
            gNbAlsaAmends,
            context),
@@ -56,38 +56,18 @@ AmixerControl::AmixerControl(const std::string &mappingValue,
 {
     // Check we are able to handle elements (no exception support, defer the error)
     switch (instanceConfigurableElement->getType()) {
-    case CInstanceConfigurableElement::EParameter: {
 
-        // Get actual element type
-        const CParameterType *parameterType = static_cast<const CParameterType *>(
-            instanceConfigurableElement->getTypeElement());
-
-        // Get scalar parameter size
-        // this size indicates elementary size, regardless of ArrayLength
-        _scalarSize = parameterType->getSize();
-        break;
-    }
-    case CInstanceConfigurableElement::EBitParameterBlock: {
-
-        // Get actual element type
-        const CBitParameterBlockType *bitParameterBlockType =
-            static_cast<const CBitParameterBlockType *>(
-                instanceConfigurableElement->getTypeElement());
-
-        // Get scalar parameter size
-        // this size indicates elementary size, regardless of ArrayLength
-        _scalarSize = bitParameterBlockType->getSize();
-        break;
-    }
+    case CInstanceConfigurableElement::EParameter:
+    case CInstanceConfigurableElement::EBitParameterBlock:
+    case CInstanceConfigurableElement::EComponent:
     case CInstanceConfigurableElement::EParameterBlock: {
 
         // Get actual element type
-        const CParameterBlockType *parameterType = static_cast<const CParameterBlockType *>(
-            instanceConfigurableElement->getTypeElement());
+        const CTypeElement *element = instanceConfigurableElement->getTypeElement();
 
         // If the parameter is a scalar its array size is 0, not 1.
         _scalarSize = instanceConfigurableElement->getFootPrint() /
-                      std::max(parameterType->getArrayLength(), 1U);
+                      std::max(element->getArrayLength(), size_t{1});
         break;
     }
     default: {
@@ -98,8 +78,10 @@ AmixerControl::AmixerControl(const std::string &mappingValue,
 
 AmixerControl::AmixerControl(const std::string &mappingValue,
                              CInstanceConfigurableElement *instanceConfigurableElement,
-                             const CMappingContext &context, uint32_t scalarSize)
-    : base(mappingValue, instanceConfigurableElement,
+                             const CMappingContext &context,
+                             core::log::Logger& logger,
+                             uint32_t scalarSize)
+    : base(mappingValue, instanceConfigurableElement, logger,
            AlsaAmend1,
            gNbAlsaAmends,
            context),
@@ -114,9 +96,9 @@ void AmixerControl::logControlInfo(bool receive) const
     if (_isDebugEnabled) {
 
         std::string controlName = getFormattedMappingValue();
-        log_info("%s ALSA Element Instance: %s\t\t(Control Element: %s)",
-                 receive ? "Reading" : "Writing",
-                 getConfigurableElement()->getPath().c_str(), controlName.c_str());
+        info() << (receive ? "Reading" : "Writing")
+               << " ALSA Element Instance: " << getConfigurableElement()->getPath()
+               << "\t\t(Control Element: " << controlName << ")";
     }
 }
 

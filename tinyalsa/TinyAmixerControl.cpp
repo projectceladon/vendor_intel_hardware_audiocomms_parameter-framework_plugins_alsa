@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011-2014, Intel Corporation
+ * Copyright (c) 2011-2016, Intel Corporation
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 #include "TinyAlsaSubsystem.hpp"
 #include "InstanceConfigurableElement.h"
 #include "MappingContext.h"
-#include "AutoLog.h"
+#include <convert.hpp>
 #include <tinyalsa/asoundlib.h>
 #include <string>
 #include <string.h>
@@ -47,8 +47,9 @@ extern "C" void __gcov_flush();
 
 TinyAmixerControl::TinyAmixerControl(const std::string &mappingValue,
                                      CInstanceConfigurableElement *instanceConfigurableElement,
-                                     const CMappingContext &context)
-    : base(mappingValue, instanceConfigurableElement, context)
+                                     const CMappingContext &context,
+                                     core::log::Logger& logger)
+    : base(mappingValue, instanceConfigurableElement, context, logger)
 {
 #ifdef __USE_GCOV__
     atexit(__gcov_flush);
@@ -57,8 +58,10 @@ TinyAmixerControl::TinyAmixerControl(const std::string &mappingValue,
 
 TinyAmixerControl::TinyAmixerControl(const std::string &mappingValue,
                                      CInstanceConfigurableElement *instanceConfigurableElement,
-                                     const CMappingContext &context, uint32_t scalarSize)
-    : base(mappingValue, instanceConfigurableElement, context, scalarSize)
+                                     const CMappingContext &context,
+                                     core::log::Logger& logger,
+                                     uint32_t scalarSize)
+    : base(mappingValue, instanceConfigurableElement, context, logger, scalarSize)
 {
 }
 
@@ -69,8 +72,6 @@ uint32_t TinyAmixerControl::getNumValues(struct mixer_ctl *mixerControl)
 
 bool TinyAmixerControl::accessHW(bool receive, std::string &error)
 {
-    CAutoLog autoLog(getConfigurableElement(), "ALSA", isDebugEnabled());
-
     // Mixer handle
     struct mixer *mixer;
     // Mixer control handle
@@ -110,8 +111,9 @@ bool TinyAmixerControl::accessHW(bool receive, std::string &error)
 
     // Get control handle
     if (isdigit(controlName[0])) {
-
-        mixerControl = mixer_get_ctl(mixer, asInteger(controlName));
+        int32_t controlNumber = 0;
+        convertTo(controlName,controlNumber);
+        mixerControl = mixer_get_ctl(mixer, controlNumber);
     } else {
 
         mixerControl = mixer_get_ctl_by_name(mixer, controlName.c_str());
@@ -132,9 +134,9 @@ bool TinyAmixerControl::accessHW(bool receive, std::string &error)
     // Check available size
     if (elementCount * scalarSize != getSize()) {
 
-        error = "ALSA: Control element count (" + asString(elementCount) +
+        error = "ALSA: Control element count (" + std::to_string(elementCount) +
                 ") and configurable scalar element count (" +
-                asString(getSize() / scalarSize) + ") mismatch";
+                std::to_string((getSize() / scalarSize)) + ") mismatch";
 
         return false;
     }

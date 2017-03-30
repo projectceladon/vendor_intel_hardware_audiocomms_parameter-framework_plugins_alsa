@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011-2014, Intel Corporation
+ * Copyright (c) 2011-2016, Intel Corporation
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -69,8 +69,9 @@ const AlsaCtlPortConfig::PortConfig TinyAlsaCtlPortConfig::_defaultPortConfig = 
 TinyAlsaCtlPortConfig::TinyAlsaCtlPortConfig(
     const std::string &mappingValue,
     CInstanceConfigurableElement *instanceConfigurableElement,
-    const CMappingContext &context)
-    : base(mappingValue, instanceConfigurableElement, context, _defaultPortConfig)
+    const CMappingContext &context,
+    core::log::Logger& logger)
+    : base(mappingValue, instanceConfigurableElement, context, logger, _defaultPortConfig)
 {
     // Init stream handle array
     _streamHandle[Playback] = NULL;
@@ -91,7 +92,7 @@ bool TinyAlsaCtlPortConfig::doOpenStream(StreamDirection streamDirection, std::s
     // Check Format is supported by the plugin
     if (portConfig.format >= pcmFormatTranslationTableSize) {
 
-        error = "The format n°" + asString(portConfig.format) +
+        error = "The format n°" + std::to_string(int{portConfig.format}) +
                 " is not supported by the TinyAlsa plugin";
         return false;
     }
@@ -113,6 +114,7 @@ bool TinyAlsaCtlPortConfig::doOpenStream(StreamDirection streamDirection, std::s
     pcmConfig.start_threshold   = 0;
     pcmConfig.stop_threshold    = 0;
     pcmConfig.silence_threshold = 0;
+    pcmConfig.silence_size      = 0;
     pcmConfig.avail_min         = 0;
 
     // Open and configure
