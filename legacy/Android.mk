@@ -51,8 +51,7 @@ LOCAL_SHARED_LIBRARIES := \
 
 LOCAL_STATIC_LIBRARIES := \
     libalsabase-subsystem \
-    libparameter_includes \
-    libxmlserializer_includes \
+    libpfw_utility
 
 # -D_POSIX_C_SOURCE=200809 is needed because alsa-lib is redefining
 # the timeval and timespec structures
@@ -60,14 +59,12 @@ LOCAL_CFLAGS += \
     -D_POSIX_C_SOURCE=200809 \
     -Wall \
     -Werror \
-    -Wextra \
-    -Wno-unused-parameter    # Needed to workaround STL bug
+    -Wextra
 
 LOCAL_MODULE := libalsa-subsystem
 LOCAL_MODULE_OWNER := intel
 LOCAL_MODULE_TAGS := optional
 
-include external/stlport/libstlport.mk
 include $(BUILD_SHARED_LIBRARY)
 
 endif # $(PFW_LEGACY_ALSA)

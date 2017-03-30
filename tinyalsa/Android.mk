@@ -50,19 +50,16 @@ LOCAL_SHARED_LIBRARIES := \
 
 LOCAL_STATIC_LIBRARIES := \
     libalsabase-subsystem \
-    libparameter_includes \
-    libxmlserializer_includes \
+    libpfw_utility
 
 LOCAL_CFLAGS += \
     -Wall \
     -Werror \
-    -Wextra \
-    -Wno-unused-parameter    # Needed to workaround STL bug
+    -Wextra
 
 LOCAL_EXPORT_C_INCLUDE_DIRS := $(LOCAL_PATH)
 LOCAL_MODULE_TAGS := optional
 LOCAL_MODULE := libtinyalsa-subsystem
 LOCAL_MODULE_OWNER := intel
 
-include external/stlport/libstlport.mk
 include $(BUILD_SHARED_LIBRARY)
