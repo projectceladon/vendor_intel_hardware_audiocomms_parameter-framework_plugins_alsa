@@ -37,20 +37,20 @@ LOCAL_SRC_FILES := \
     AlsaCtlPortConfig.cpp \
     AmixerControl.cpp \
 
+LOCAL_SHARED_LIBRARIES := \
+    libparameter
+
 LOCAL_STATIC_LIBRARIES := \
-    libparameter_includes \
-    libxmlserializer_includes \
+    libpfw_utility
 
 LOCAL_CFLAGS := \
     -Wall \
     -Werror \
-    -Wextra \
-    -Wno-unused-parameter    # Needed to workaround STL bug
+    -Wextra
 
 LOCAL_EXPORT_C_INCLUDE_DIRS := $(LOCAL_PATH)
 LOCAL_MODULE_TAGS := optional
 LOCAL_MODULE := libalsabase-subsystem
 LOCAL_MODULE_OWNER := intel
 
-include external/stlport/libstlport.mk
 include $(BUILD_STATIC_LIBRARY)
